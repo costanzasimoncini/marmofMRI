@@ -1,35 +1,32 @@
-import os
+# - Band pass filter fMRI 
+# - Add mean to filtered image to recover brain anatomy
+# - Apply brain mask to final image.
+
 import numpy as np
-import nibabel as nb
+import nibabel as nib
 from f_applymaskto4Dim import apply_mask_4D_nibabel
 # import nipype
 
-folder = "/Users/costanza/workspace/PROJETS/fMRI_marmo/210607_02_Josette3M/RestingState/"
-
-name = "Jos3M"
+# set working folder
+folder = "../RestingState/"
+# set animal name
+name = "Fri3M"
 
 in_file = folder + "sraRS" + name + ".nii"
 mask_file = folder + "meanaRS" + name + "_mask.nii"
 out_file = folder + "sraRS" + name + "_brain_bpft_tmp.nii.gz"
-mean_file = folder + "meanaRS" + name + ".nii" # fslmaths raRS_bc_brain.nii.gz -Tmean mean.nii
-img = nb.load(in_file)
-mask = nb.load(mask_file)
-mean = nb.load(mean_file)
+mean_file = folder + "meanaRS" + name + ".nii" # can be computed by: $ fslmaths img.nii.gz -Tmean img_mean.nii
 
-# Compute mean and add filtered image (to recover anatomy)
+img = nib.load(in_file)
+mask = nib.load(mask_file)
+mean = nib.load(mean_file)
 
-# imgdata = img.get_fdata()
-# img_mean = np.mean(imgdata, axis = 3)
-# funziona ma sbatti cambiare i metadata per cambiare dim
-
-
+# get Repetition Time TR (s)
 TR = img.header.get_zooms()[3]
-
-
 if TR == 0 :
-    print(" ! TR = " + str(TR) + "s ! Modify using 'set_TR.py'")
+    print(" ! TR = " + str(TR) + " s ! Modify using 'set_TR.py'")
 else :
-    print("TR = " + str(TR) + "s")
+    print("TR = " + str(TR) + " s")
 
 
 # Band Pass frequencies (Hz)
@@ -46,16 +43,15 @@ F = np.zeros((timepoints))
 print("timepoints = " + str(timepoints))
 
 # BAND PASS FILTER
-# taken from Nipype 'bandpass_filter' function ??????
+# modified from Nipype 'bandpass_filter' function
 
-lowidx = timepoints // 2 + 1 # "/" replaced by "//"
-# lowidx = int(timepoints / 2) + 1
+lowidx = int(timepoints / 2) + 1
 
 if lowpass_freq > 0:
-    lowidx = int(np.round(lowpass_freq / fs * timepoints)) # "np.round(..." replaced by "int(np.round(..."
+    lowidx = int(np.round(lowpass_freq / fs * timepoints)) 
 highidx = 0
 if highpass_freq > 0:
-    highidx = int(np.round(highpass_freq / fs * timepoints)) # same
+    highidx = int(np.round(highpass_freq / fs * timepoints))
 F[highidx:lowidx] = 1
 F = ((F + F[::-1]) > 0).astype(int)
 data = img.get_fdata()
@@ -63,11 +59,13 @@ if np.all(F == 1):
     filtered_data = data
 else:
     filtered_data = np.real(np.fft.ifftn(np.fft.fftn(data) * F))
-img_out = nb.Nifti1Image(filtered_data, img.affine, img.header)
-img_out.to_filename(out_file) # save to "out_file" filename
+
+ # save filtered image to "out_file" filename
+img_out = nib.Nifti1Image(filtered_data, img.affine, img.header)
+nib.save(img_out, out_file) 
 
 
-# ADD MEAN
+# Add Mean image to recover brain anatomy
 dmask = mask.get_fdata()
 print ("Unique values in brain mask : " + str(np.unique(dmask)))
 dmask[dmask!=0] = 1.0 # in case brain values are not exactly = 1
@@ -76,14 +74,12 @@ m = nonzerosvx.min()
 
 for i in np.arange(timepoints) :
     filtered_data[...,i] = filtered_data[...,i] + mean.get_fdata()
-img_out2 = nb.Nifti1Image(filtered_data, img.affine, img.header)
+img_out_addmean = nib.Nifti1Image(filtered_data, img.affine, img.header)
 
 # APPLY MASK
-img_out2_mask = apply_mask_4D_nibabel(img_out2, mask)
+img_out_addmean_mask = apply_mask_4D_nibabel(img_out_addmean, mask)
 
-# img_out2_mask.to_filename(folder + "raRS_bc_brain_bpft_min0_mask.nii.gz") # save
-img_out2_mask.to_filename(folder + "sraRS" + name + "_brain_bpft.nii.gz") # save
-
+nib.save(img_out_addmean_mask, folder + "sraRS" + name + "_brain_bpft.nii.gz")
 
 
 # ## FSL

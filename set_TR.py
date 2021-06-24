@@ -1,26 +1,26 @@
-import nibabel as nb
+import nibabel as nib
 
-folder = "/Users/costanza/workspace/PROJETS/fMRI_marmo/210607_02_Josette3M/RestingState/"
-imname = "sraRSJos3M"
-suffix = ".nii"
+# set working folder
+filename = "../RestingState/RS.nii"
 
-# DEFINE NEW TR
+# SET NEW Repetition Time
 TR = 2.0
+TRms = TR * 1000 # save TR in ms in filename in order to have integer values
 
-filepath = "/Users/costanza/workspace/PROJETS/fMRI_marmo/210607_02_Josette3M/RestingState/sraRSJos3M.nii"
-filepath_newTR = filepath[:filepath.find(".")] + "TR" + str(TR) + ".nii"
-filename = folder + imname + suffix
-img = nb.load(filename)
 
-data = img.get_fdata()
-hd = img.header
-affine = img.affine
+file_format = filename[-3:]
+filename_newTR = filename[:filename.rfind(".nii")] + "TR" + str(int(TRms)) + "ms.nii"
+
+fMRI = nib.load(filename)
+
+data = fMRI.get_fdata()
+hd = fMRI.header
+affine = fMRI.affine
+
+# in Nifti metadata TR is saved as the voxel size in the 4th dimension 
 zooms = hd.get_zooms()[:3] + (TR,)
 print(zooms)
 hd.set_zooms(zooms)
 
-newim = nb.Nifti1Image(data, affine, hd)
-nb.save(newim, filepath_newTR)
-
-# img.__class__(data, affine, hd)
-# img.to_filename(filepath_newTR)
+newfMRI = nib.Nifti1Image(data, affine, hd)
+nib.save(newfMRI, filename_newTR)

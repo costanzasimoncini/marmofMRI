@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=2, suppress=True)
 
-folder = "/Users/costanza/workspace/PROJETS/fMRI_marmo/210607_02_Josette3M/RestingState/"
+# set working folder
+folder = "../RestingState/"
+# set animal name
 name = "Jos3M"
 RS = nib.load(folder + "sraRS" + name + "_brain_bpft.nii.gz")
 mask = nib.load(folder + "meanaRS" + name + "_mask.nii")
