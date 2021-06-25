@@ -5,46 +5,47 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(precision=2, suppress=True)
 
-# set working folder
-folder = "../RestingState/"
-# set animal name
-name = "Jos3M"
-RS = nib.load(folder + "sraRS" + name + "_brain_bpft.nii.gz")
-mask = nib.load(folder + "meanaRS" + name + "_mask.nii")
+def compute_globalmean(folder, name) :
+    RS = nib.load(folder + "sraRS" + name + "_brain_bpft.nii.gz")
 
-dRS = RS.get_fdata()
-hRS = RS.header
-aRS = RS.affine
+    dRS = RS.get_fdata()
+    hRS = RS.header
+    aRS = RS.affine
 
 
-# Compute mean global signal (to use as confound)
-global_mean_course = np.zeros([dRS.shape[3]])
-for i in np.arange(dRS.shape[3]):
-    idx = dRS[..., i] != 0   # average on voxels != 0
-    global_mean_course[i] = np.mean(dRS[idx, i])
+    # Compute mean global signal (to use as confound)
+    global_mean_course = np.zeros([dRS.shape[3]])
+    for i in np.arange(dRS.shape[3]):
+        idx = dRS[..., i] != 0   # average on voxels != 0
+        global_mean_course[i] = np.mean(dRS[idx, i])
 
 
-# Compute RS normalized by mean global signal
-dRS_normglobmean = np.zeros(dRS.shape)
-for i in np.arange(dRS.shape[3]):
-    idx = dRS[..., i] != 0
-    dRS_normglobmean[idx, i] = dRS[idx, i] - global_mean_course[i]
+    # Compute RS normalized by mean global signal
+    dRS_normglobmean = np.zeros(dRS.shape)
+    for i in np.arange(dRS.shape[3]):
+        idx = dRS[..., i] != 0
+        dRS_normglobmean[idx, i] = dRS[idx, i] - global_mean_course[i]
 
-# dRS_normglobmean_nii = nib.Nifti1Image(dRS_normglobmean, aRS, hRS)
-# nib.save(dRS_normglobmean_nii, folder + 'RS_normglobmean.nii.gz')
-np.savetxt(folder + 'ROI/global_mean_timecourse.txt', global_mean_course)
+    dRS_normglobmean_nii = nib.Nifti1Image(dRS_normglobmean, aRS, hRS)
+    nib.save(dRS_normglobmean_nii, folder + "sraRS" + name + "_normglobmean.nii.gz")
+
+    if not os.path.isdir(folder + 'ROI'):
+        os.mkdir(folder + 'ROI')
+    np.savetxt(folder + 'ROI/global_mean_timecourse.txt', global_mean_course)
 
 
-# Create folder for regressors needed for Seed Based analysis in Feat FSL
-folder_res = folder + "Res_SeedBased"
-if not os.path.isdir(folder_res):
-    os.mkdir(folder_res)
+    # Create folder for regressors needed for Seed Based analysis in Feat FSL
+    folder_res = folder + "Res_SeedBased"
+    if not os.path.isdir(folder_res):
+        os.mkdir(folder_res)
+    
+    return dRS, dRS_normglobmean, global_mean_course, folder_res
 
 
 def compute_timecourse(roi_path, dRS, dRS_normglobmean, global_mean_course, folder_res):
 
     folder = roi_path[:roi_path.rfind("/") + 1]
-    roi_name = roi_path[roi_path.rfind("/") + 1 : roi_path.find(".")]
+    roi_name = roi_path[roi_path.rfind("/") + 1 : roi_path.find(".nii")]
 
     roi = nib.load(roi_path)
     droi = roi.get_fdata()
@@ -83,13 +84,4 @@ def compute_timecourse(roi_path, dRS, dRS_normglobmean, global_mean_course, fold
     # save a copy of roi.nii and timecourse.txt in the folder where the Seed Based Feat analysis will be be run
     nib.save(roi, folder_res_roi + "/" + roi_name + ".nii.gz")
     np.savetxt(folder_res_roi + "/" + roi_name + "_timecourse.txt", roi_mean_course)
-
-    return
-
-
-compute_timecourse(folder + "ROI/roi_pavant.nii.gz", dRS, dRS_normglobmean, global_mean_course, folder_res)
-compute_timecourse(folder + "ROI/roi_parriere.nii.gz", dRS, dRS_normglobmean, global_mean_course, folder_res)
-compute_timecourse(folder + "ROI/roi_les_noire.nii.gz", dRS, dRS_normglobmean, global_mean_course, folder_res)
-
-
-print('Timecourse files are saved in ' + folder_res)
+    print('Timecourse files are saved in ' + folder_res)

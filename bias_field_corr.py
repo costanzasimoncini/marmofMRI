@@ -7,7 +7,6 @@ folder = '../RestingState/'
 RS =  ants.image_read(folder + 'raRS.nii')
 T2 =  ants.image_read(folder + 'rT2.nii')
 
-
 # Bias correction of RS and T2
 
 T2_bc = ants.n4_bias_field_correction(T2)

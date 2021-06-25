@@ -1,26 +1,33 @@
 # marmofMRI
 
-This repository contains different tools for the preprocessing of small animal (rodents, marmosets, ...) fMRI, in particular resting state data.
+This repository contains different tools for the preprocessing of small animal fMRI (rodents, marmosets, ...), in particular resting state data.
 
 Many tools exist for the analysis of human brain fMRI, but they often cannot be used directly on small animals fMRI, due to different image resolution and more important deformations of EPI under higher magnetic field. 
 
 This repository is intended to support the processing performed with common tools such as SPM, FSL, ANTs and ITK-Snap. The project is currently under further development in order to be less dependent on other softwares. 
 
+Before using marmofMRI, your resting state fMRI data must be processed in SPM or FSL: to this purpose, we propose the batch file 'preproc_fmri_marmo.mat' to be launche in SPM. The batch performs slice timing, realignement and smoothing. Skull stripping must also be previously performed. We suggest PCNN3D algorithm published by "Chou et al., Robust automatic rodent brain extraction using 3-D pulse-coupled neural networks (PCNN). IEEE Trans Image Process. 2011 Sep;20(9):2554-64".
+
+The main script first applies a band pass filter based on user-defined cut-off frequencies. The obtained image is very noisy so the resting state mean image is added to all volumes in order to recover brain anatomy. 
+
+The obtained, filtered image is later used in order to compute the mean timecourse of any given ROI. This is intended to be used for later ROI-to-voxel Seed-Based analysis (for example in FSL Feat).
+
+The filtered image can also be used to find functional networks through Independent Component Analysis (ICA). Melodic FLS can be used to this purpose.
+
 
 # Dependencies
 
-	SPM
-	FSL
+	SPM12
 	nibabel
 	anstpy
 
 # Usage
 
-Resting state fMRI data must be previously processed in SPM or FSL. Users can run in SPM the proposed batch file 'preproc_fmri_marmo.mat' which performs slice timing, realignement and smoothing. Skull stripping must also be previously performed. We suggest PCNN3D algorithm published by "Chou et al., Robust automatic rodent brain extraction using 3-D pulse-coupled neural networks (PCNN). IEEE Trans Image Process. 2011 Sep;20(9):2554-64".
+Before launching the main script, please be sure the following preprocessing have been performed:
 
-Principal files to be launched are 'bandpassfilter_recoverbrain.py' and 'compute_regressors_for_seed_based.py'.
-The first one applies a band pass filter based on user-defined cut-off frequencies. The obtained image is very noisy so the resting state mean image is added to all volumes in order to recover brain anatomy. 
+- Name your Resting State data as 'RSYourName.nii'
+- Launch in SPM the proposed batch 'preproc_fmri_marmo.mat'
+- Perform skull-stripping (with PCNN3D) on the mean image computed by SPM (called meanaRSYourName.nii) and save the obtained mask as 'meanaRSYourName_mask.nii'
+- Segment (for example in ITK-snap) the ROI you want to use for Seed Based analysis and place it in a subfolder called ROI
 
-The obtained, filtered image can be used in Melodic FSL in order to find functional networks through  Independent Component Analysis (ICA). 
- 
-The obtained, filtered image can also be used in the 'compute_regressors_for_seed_based.py' file in order to compute the mean timecourse of any given ROI. This is intended to be used for later ROI to voxel Seed-Based analysis (for example in FSL Feat).
+Finally you can define your working folder and the name of your data in the script 'main.py' and launch it.
