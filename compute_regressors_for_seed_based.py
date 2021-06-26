@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 np.set_printoptions(precision=2, suppress=True)
 
 def compute_globalmean(folder, name) :
-    RS = nib.load(folder + "sraRS" + name + "_brain_bpft.nii.gz")
+    RS = nib.load(folder + "sra" + name + "_brain_bpft.nii.gz")
 
     dRS = RS.get_fdata()
     hRS = RS.header
@@ -27,7 +27,7 @@ def compute_globalmean(folder, name) :
         dRS_normglobmean[idx, i] = dRS[idx, i] - global_mean_course[i]
 
     dRS_normglobmean_nii = nib.Nifti1Image(dRS_normglobmean, aRS, hRS)
-    nib.save(dRS_normglobmean_nii, folder + "sraRS" + name + "_normglobmean.nii.gz")
+    nib.save(dRS_normglobmean_nii, folder + "sra" + name + "_normglobmean.nii.gz")
 
     if not os.path.isdir(folder + 'ROI'):
         os.mkdir(folder + 'ROI')

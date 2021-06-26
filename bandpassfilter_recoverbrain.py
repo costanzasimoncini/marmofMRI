@@ -9,10 +9,11 @@ from f_applymaskto4Dim import apply_mask_4D_nibabel
 
 def bpft(folder, name) :
 
-    in_file = folder + "sraRS" + name + ".nii"
-    mask_file = folder + "meanaRS" + name + "_mask.nii"
-    out_file = folder + "sraRS" + name + "_brain_bpft_tmp.nii.gz"
-    mean_file = folder + "meanaRS" + name + ".nii" # can be computed by: $ fslmaths img.nii.gz -Tmean img_mean.nii
+    # load fMRI preprocessed with slice timing (a), realignement (r) and smoothing (s) 
+    in_file = folder + "sra" + name + ".nii" 
+    mask_file = folder + "meana" + name + "_mask.nii"
+    out_file = folder + "sra" + name + "_brain_bpft_tmp.nii.gz"
+    mean_file = folder + "meana" + name + ".nii"
     
     img = nib.load(in_file)
     mask = nib.load(mask_file)
@@ -37,11 +38,10 @@ def bpft(folder, name) :
     
     print("timepoints = " + str(timepoints))
     
-    # BAND PASS FILTER
+    # BAND PASS FILTER:
     # modified from Nipype 'bandpass_filter' function
     
     lowidx = int(timepoints / 2) + 1
-    
     if lowpass_freq > 0:
         lowidx = int(np.round(lowpass_freq / fs * timepoints)) 
     highidx = 0
@@ -74,7 +74,7 @@ def bpft(folder, name) :
     # APPLY MASK
     img_out_addmean_mask = apply_mask_4D_nibabel(img_out_addmean, mask)
     
-    nib.save(img_out_addmean_mask, folder + "sraRS" + name + "_brain_bpft.nii.gz")
+    nib.save(img_out_addmean_mask, folder + "sra" + name + "_brain_bpft.nii.gz")
     
     
     # ## FSL

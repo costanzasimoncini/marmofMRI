@@ -1,5 +1,4 @@
 # Main script for Resting State fMRI preprocessing
-
 from bandpassfilter_recoverbrain import bpft
 from compute_regressors_for_seed_based import compute_globalmean, compute_timecourse
 
@@ -9,14 +8,15 @@ from compute_regressors_for_seed_based import compute_globalmean, compute_timeco
 # "meanaRSYourName.nii"        # Mean Resting State image
 
 # Define your working folder
-folder = "YourFolder/"
-
-# Define animal name
-name = "YourName"
+datapath = "YourFolder/YourData.nii"
+# Examle : "../DATA/RestingState/RS_Frida3Mois"
 
 # Define the the Nifti ROI you want to use in Seed Based analysis
 # It should be placed in YourFolder/ROI
-roi_path = folder + "ROI/YourRoi.nii"
+roi_path = "ROI/YourRoi.nii"
+
+folder = datapath[:datapath.rfind("/") + 1]
+name = datapath[datapath.rfind("/") + 1 : datapath.find(".nii")]
 
 # Band pass filter fMRI data
 bpft(folder, name)
