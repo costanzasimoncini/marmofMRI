@@ -22,7 +22,7 @@ def bpft(folder, name) :
     # get Repetition Time TR (s)
     TR = img.header.get_zooms()[3]
     if TR == 0 :
-        print(" ! TR = " + str(TR) + " s ! Modify using 'set_TR.py'")
+        print(" ! TR = " + str(TR) + " s ! Correct using 'set_TR.py'")
     else :
         print("TR = " + str(TR) + " s")
     

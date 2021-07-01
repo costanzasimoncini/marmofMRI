@@ -1,11 +1,10 @@
-import numpy as np
 import nibabel as nib
 
-folder = '../RestingState/'
-filename = folder + 'meanaRS_mask.nii'
+# Path to Nifti file to be corrected (for example if mask image is not between 0 and 1)
+# Example :
+filename = '/RestingState/meanaRS_mask.nii'
 
 mask = nib.load(filename)
-file_format = filename[-3:]
 filename_corr = filename[:filename.rfind(".nii")]  + "_corr.nii"
 
 dmask = mask.get_fdata()
@@ -27,7 +26,8 @@ nib.save(mask_corrected_nii, filename_corr)
 # dRS = dRS + 1.0
 # 
 # RS_corrected_nii = nib.Nifti1Image(dRS, aRS, hRS)
-# nib.save(RS_corrected_nii, folder + 'raRS_thr0.nii.gz')
+# filename_thr0 = filename[:filename.rfind(".nii")]  + "_thr0.nii"
+# nib.save(RS_corrected_nii, filename_thr0)
 
 
 

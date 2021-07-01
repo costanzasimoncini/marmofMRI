@@ -44,10 +44,10 @@ def compute_globalmean(folder, name) :
 
 def compute_timecourse(roi_path, dRS, dRS_normglobmean, global_mean_course, folder_res):
 
-    folder = roi_path[:roi_path.rfind("/") + 1]
+    folder = folder_res[:folder_res.rfind("/") + 1]
     roi_name = roi_path[roi_path.rfind("/") + 1 : roi_path.find(".nii")]
 
-    roi = nib.load(roi_path)
+    roi = nib.load(folder + roi_path)
     droi = roi.get_fdata()
 
     # Compute ROI timecourse

@@ -1,6 +1,7 @@
 import nibabel as nib
 
-# set working folder
+# set fMRI data file path
+# Example: 
 filename = "../RestingState/RS.nii"
 
 # SET NEW Repetition Time
@@ -23,4 +24,5 @@ print(zooms)
 hd.set_zooms(zooms)
 
 newfMRI = nib.Nifti1Image(data, affine, hd)
-nib.save(newfMRI, filename_newTR)
+nib.save(newfMRI, filename_newTR) 
+# nib.save(newfMRI, filename) # overwrite the same file
