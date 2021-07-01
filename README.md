@@ -18,6 +18,10 @@ The filtered image can also be used to find functional networks through Independ
 # Dependencies
 
 	SPM12
+	Python3.6
+
+Python packages:
+
 	nibabel
 	anstpy
 
@@ -29,4 +33,4 @@ Before launching the main script, please be sure the following preprocessing hav
 - Perform skull-stripping (e.g. with PCNN3D) on the mean image computed by SPM (called meanaYourData.nii) and save the obtained mask as 'meanaYourData_mask.nii'
 - Segment (for example in ITK-snap) the ROI you want to use for Seed Based analysis and place it in a subfolder called ROI e.g.  `YourFolder/ROI` 
 
-Finally you can define your 'datapath' in the script 'main.py' and launch it.
+Finally you can define your 'datapath' in the script `main.py` and launch it.
